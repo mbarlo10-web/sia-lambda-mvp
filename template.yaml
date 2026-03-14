@@ -1,0 +1,68 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: SIA Lambda MVP - process .txt resumes from S3 and write JSON to processed bucket
+
+Parameters:
+  SourceBucketName:
+    Type: String
+    Default: sciata-sia-resumes-raw-dev-us-east-2
+    Description: Name of the S3 bucket that receives uploads (triggers Lambda)
+  ProcessedBucketName:
+    Type: String
+    Default: sciata-sia-resumes-processed-dev-us-east-2
+    Description: Name of the S3 bucket where JSON output is written
+  OutputPrefix:
+    Type: String
+    Default: "processed/jobdiva/normalized/"
+    Description: S3 key prefix for output JSON files
+
+Resources:
+  SourceBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref SourceBucketName
+
+  ProcessedBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ProcessedBucketName
+
+  ResumeProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.12
+      CodeUri: .
+      Timeout: 60
+      MemorySize: 256
+      Environment:
+        Variables:
+          PROCESSED_BUCKET: !Ref ProcessedBucket
+          OUTPUT_PREFIX: !Ref OutputPrefix
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref SourceBucketName
+        - S3CrudPolicy:
+            BucketName: !Ref ProcessedBucketName
+      Events:
+        S3Upload:
+          Type: S3
+          Properties:
+            Bucket: !Ref SourceBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .txt
+
+Outputs:
+  ResumeProcessorFunctionArn:
+    Description: ARN of the resume processor Lambda
+    Value: !GetAtt ResumeProcessorFunction.Arn
+  SourceBucketName:
+    Description: Bucket to upload .txt files (triggers processing)
+    Value: !Ref SourceBucket
+  ProcessedBucketName:
+    Description: Bucket where JSON output is written
+    Value: !Ref ProcessedBucket

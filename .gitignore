@@ -1,0 +1,28 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Local run output (simulated S3 writes)
+local_output/
+
+# AWS / env
+.env
+.env.local
+*.zip
+.aws-sam/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.swo
+
+# Optional: keep if you want to track deploy config
+# samconfig.toml

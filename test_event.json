@@ -1,0 +1,14 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "bucket": {
+          "name": "sciata-sia-resumes-raw-dev-us-east-2"
+        },
+        "object": {
+          "key": "raw/jobdiva/test_resume.txt"
+        }
+      }
+    }
+  ]
+}
