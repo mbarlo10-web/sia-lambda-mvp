@@ -1,3 +1,33 @@
 Jane Doe
-Software Engineer with 5+ years of Python and AWS experience.
-Previously at Acme Corp. BS Computer Science, State University.
+jane.doe@email.com | (555) 867-5309
+Austin, TX
+
+Summary
+Results-driven software engineer with over seven years of experience designing and deploying
+scalable cloud applications. Proven track record of leading cross-functional teams to deliver
+high-quality products on time. Strong background in backend services, CI/CD pipelines, and
+infrastructure automation across AWS environments.
+
+Skills
+Python, Java, TypeScript, SQL, Bash
+AWS Lambda, EC2, S3, DynamoDB, CloudFormation
+Docker, Kubernetes, Terraform, Jenkins
+REST APIs, GraphQL, Microservices Architecture
+Git, GitHub Actions, Agile/Scrum
+
+Experience
+Senior Software Engineer — Pinnacle Tech Solutions, Austin, TX
+March 2021 – Present
+Led migration of monolithic application to event-driven microservices on AWS, reducing
+deployment time by forty percent. Designed and maintained Lambda-based ETL pipelines
+processing over two million records daily. Mentored a team of four junior developers through
+code reviews and pair programming sessions.
+
+Software Engineer — Bridgewater Analytics, Dallas, TX
+June 2018 – February 2021
+Built RESTful APIs serving fifty thousand daily active users. Implemented automated testing
+and CI/CD pipelines using Jenkins and GitHub Actions, achieving ninety-eight percent code
+coverage across core services.
+
+Education
+Bachelor of Science in Computer Science — University of Texas at Austin, 2018

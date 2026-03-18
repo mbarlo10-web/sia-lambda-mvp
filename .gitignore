@@ -10,6 +10,7 @@ build/
 
 # Local run output (simulated S3 writes)
 local_output/
+mock_output/
 
 # AWS / env
 .env
