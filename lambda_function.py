@@ -1,6 +1,8 @@
 import io
 import json
 import os
+import re
+import uuid
 import logging
 import zipfile
 import xml.etree.ElementTree as ET
@@ -22,23 +24,33 @@ logger.setLevel(logging.INFO)
 
 s3 = boto3.client("s3")
 
-PROCESSED_BUCKET = os.environ.get(
-    "PROCESSED_BUCKET",
-    "sciata-sia-resumes-processed-dev-us-east-2",
-)
-OUTPUT_PREFIX = os.environ.get(
-    "OUTPUT_PREFIX",
-    "processed/jobdiva/normalized/",
-)
-KMS_KEY_ARN = os.environ.get("KMS_KEY_ARN", "")
+# Environment variables
+PROCESSED_BUCKET = os.environ.get("PROCESSED_BUCKET", "sciata-sia-resumes-processed-dev-us-east-2")
+KMS_KEY_ARN = os.environ.get("KMS_KEY_ARN", "")  # optional but recommended
 
 SUPPORTED_EXTENSIONS = [".txt", ".docx", ".pdf", ".json"]
 
+# Pattern: jobdiva/{YYYY-MM-DD}/{candidate_id}_{lastname}_{firstname}.txt (or .json)
+KEY_PATTERN = re.compile(
+    r"jobdiva/(\d{4}-\d{2}-\d{2})/(\d+)_([^_]+)_([^_.]+)\.\w+$"
+)
+
 
 def build_output_key(source_key: str) -> str:
-    filename = source_key.split("/")[-1]
-    base_name = filename.rsplit(".", 1)[0] if "." in filename else filename
-    return f"{OUTPUT_PREFIX}{base_name}.json"
+    """
+    Preserve the date folder from the source key.
+    Input:  jobdiva/2026-03-16/12345_doe_jane.txt
+    Output: processed/jobdiva/2026-03-16/12345_doe_jane.json
+    """
+    # Strip leading path segments before 'jobdiva/' if present
+    idx = source_key.find("jobdiva/")
+    if idx >= 0:
+        relative = source_key[idx:]
+    else:
+        relative = source_key
+
+    base, _ = os.path.splitext(relative)
+    return f"processed/{base}.json"
 
 
 def get_object_bytes(bucket: str, key: str) -> bytes:
@@ -103,14 +115,85 @@ def extract_text_by_extension(bucket: str, key: str, extension: str):
     raise ValueError(f"Unsupported file type: {extension}")
 
 
-def parse_basic_resume_fields(text: str) -> dict:
-    lines = [line.strip() for line in text.splitlines() if line.strip()]
-    candidate_name = lines[0] if lines else "Unknown"
+def extract_candidate_id(source_key: str) -> str:
+    """
+    Extract candidate_id from the S3 key.
+    Key format: jobdiva/{YYYY-MM-DD}/{candidate_id}_{lastname}_{firstname}.ext
+    Falls back to a UUID if the pattern doesn't match.
+    """
+    match = KEY_PATTERN.search(source_key)
+    if match:
+        return match.group(2)
+    return str(uuid.uuid4())
+
+
+def extract_ingestion_date(source_key: str) -> str:
+    """
+    Extract the date folder from the S3 key.
+    Returns the date string or today's date as fallback.
+    """
+    match = KEY_PATTERN.search(source_key)
+    if match:
+        return match.group(1)
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
+def parse_resume_fields(text: str) -> dict:
+    """
+    Regex-based resume parser. Extracts:
+    - candidate_name (first non-empty line)
+    - email
+    - phone
+    - location (city, state)
+    - skills list (lines under a 'Skills' section header)
+    """
+    lines = [line.strip() for line in text.splitlines()]
+    non_empty = [l for l in lines if l]
+
+    # Candidate name: first non-empty line
+    candidate_name = non_empty[0] if non_empty else "Unknown"
+
+    # Email
+    email_match = re.search(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}", text)
+    email = email_match.group(0) if email_match else ""
+
+    # Phone: various US formats
+    phone_match = re.search(
+        r"(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}", text
+    )
+    phone = phone_match.group(0) if phone_match else ""
+
+    # Location: look for City, ST or City, State patterns
+    location_match = re.search(
+        r"([A-Z][a-zA-Z\s]+),\s*([A-Z]{2})\b", text
+    )
+    location = f"{location_match.group(1).strip()}, {location_match.group(2)}" if location_match else ""
+
+    # Skills: grab lines after a "Skills" header until the next section header or blank line gap
+    skills = []
+    section_header_pattern = re.compile(r"^[A-Z][A-Za-z\s]+:?\s*$")
+    in_skills = False
+    for line in lines:
+        if re.match(r"^skills\s*:?\s*$", line, re.IGNORECASE):
+            in_skills = True
+            continue
+        if in_skills:
+            if not line:
+                break
+            if section_header_pattern.match(line) and not re.match(r"^skills", line, re.IGNORECASE):
+                break
+            # Split comma/semicolon-separated skills on a single line
+            for item in re.split(r"[,;|]", line):
+                item = item.strip(" -•·*")
+                if item:
+                    skills.append(item)
 
     return {
         "candidate_name": candidate_name,
-        "line_count": len(lines),
-        "char_count": len(text),
+        "email": email,
+        "phone": phone,
+        "location": location,
+        "skills": skills,
     }
 
 
@@ -238,39 +321,42 @@ def process_record(record: dict) -> dict:
 
     logger.info(f"Successfully read file: {source_key}")
 
+    # For JSON files, convert dict back to string for parse_resume_fields
     if extension == ".json":
-        source_payload = extracted
-        parsed_fields = parse_jobdiva_candidate_fields(source_payload)
-        raw_text = json.dumps(source_payload, indent=2)
-
-        payload = {
-            "status": "processed",
-            "processed_at_utc": datetime.now(timezone.utc).isoformat(),
-            "source_bucket": source_bucket,
-            "source_key": source_key,
-            "source_file_type": "json",
-            "candidate_id": parsed_fields["candidate_id"],
-            "candidate_name": parsed_fields["candidate_name"],
-            "candidate_profile": parsed_fields["candidate_profile"],
-            "candidate_qualifications": parsed_fields["candidate_qualifications"],
-            "parsed_fields": parsed_fields,
-            "raw_text": raw_text,
-            "source_payload": source_payload,
-        }
+        text = json.dumps(extracted, indent=2)
     else:
         text = extracted
-        parsed_fields = parse_basic_resume_fields(text)
 
-        payload = {
-            "status": "processed",
-            "processed_at_utc": datetime.now(timezone.utc).isoformat(),
-            "source_bucket": source_bucket,
-            "source_key": source_key,
-            "source_file_type": extension.replace(".", ""),
-            "candidate_name": parsed_fields.get("candidate_name", "Unknown"),
-            "parsed_fields": parsed_fields,
-            "raw_text": text,
-        }
+    parsed = parse_resume_fields(text)
+    candidate_id = extract_candidate_id(source_key)
+    ingestion_date = extract_ingestion_date(source_key)
+    now_utc = datetime.now(timezone.utc).isoformat()
+
+    # Original filename from the key
+    original_filename = source_key.split("/")[-1]
+
+    payload = {
+        "schema_version": "1.0",
+        "status": "processed",
+        "processed_at_utc": now_utc,
+        "ingestion_date": ingestion_date,
+        "source": "jobdiva",
+        "candidate_id": candidate_id,
+        "candidate_name": parsed["candidate_name"],
+        "email": parsed["email"],
+        "phone": parsed["phone"],
+        "location": parsed["location"],
+        "available": True,
+        "resume_text": text,
+        "text_source": "txt_upload",
+        "qualifications": parsed["skills"],
+        "education": [],
+        "experience": [],
+        "submittal_history": [],
+        "original_filename": original_filename,
+        "source_bucket": source_bucket,
+        "source_key": source_key,
+    }
 
     output_key = build_output_key(source_key)
     put_json_to_s3(PROCESSED_BUCKET, output_key, payload)
