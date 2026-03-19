@@ -1199,3 +1199,891 @@ Run completed from the project root: **statusCode 200**, “All records processe
 
 ---
 
+_**User**_
+
+what is the easy way for me to share all the code with Alex?
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+
+The user wants to share the code with Alex. The easy ways to do that typically are:
+
+1. **Git + GitHub/GitLab/Bitbucket** - Push the repo and share the link or add Alex as collaborator
+2. **Zip the project** - Create an archive and send via email, Slack, etc.
+3. **Cloud storage** - Upload to S3, Google Drive, Dropbox and share link
+
+The user said "Is directory a git repo: No" at the start, so they don't have git initialized. The easiest and most sustainable way is usually:
+- Initialize git, add a .gitignore (for .venv, __pycache__, local_output, .env, etc.), commit, then either push to GitHub and share the repo link or create a zip.
+
+I'll suggest the main options and offer to set up the one that requires code (git init + .gitignore) so they have a clean shareable state.
+</details></think>
+
+---
+
+
+Options from easiest to most durable:
+
+1. **Git + GitHub (best for ongoing sharing)**  
+   - Initialize a repo, push to GitHub, then share the repo link or add Alex as a collaborator.  
+   - I can add a `.gitignore` and run `git init` so you have a clean repo to push.
+
+2. **Zip and send**  
+   - Zip the project (excluding `.venv`, `local_output`, etc.) and share via email, Slack, or Drive.  
+   - I can add a `.gitignore` and show the exact zip command so you don’t include venv/cache.
+
+3. **Cloud link (Drive, Dropbox, etc.)**  
+   - Upload the folder (again, exclude `.venv` and `local_output`) and share the folder link.
+
+Adding a `.gitignore` so we have a clean shareable set of files. Then we can do either (1) or (2).
+
+
+---
+
+<tool-use data-tool-type="write" data-tool-name="edit_file_v2">
+
+<details><summary>Tool use: **edit_file_v2** • Edit file: /Users/markbarlow/sia-lambda-mvp/.gitignore</summary>
+
+</details>
+
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+
+Good. Now I'll give them the exact steps for the two easiest options.
+</details></think>
+
+---
+
+
+Here’s the easy way to share with Alex:
+
+---
+
+### Option A: Zip and send (quick)
+
+From the project root:
+
+```bash
+cd /Users/markbarlow/sia-lambda-mvp
+zip -r sia-lambda-mvp.zip . -x ".venv/*" -x "__pycache__/*" -x "local_output/*" -x ".git/*" -x "*.pyc"
+```
+
+Send `sia-lambda-mvp.zip` to Alex (email, Slack, Drive, etc.). They unzip and run:
+
+```bash
+pip install -r requirements.txt
+SIMULATE_LOCAL=1 python lambda_function.py
+```
+
+---
+
+### Option B: GitHub (best if you’ll keep collaborating)
+
+1. **Create a repo** on GitHub (e.g. `sia-lambda-mvp`), don’t add a README.
+2. **In your project folder:**
+
+   ```bash
+   cd /Users/markbarlow/sia-lambda-mvp
+   git init
+   git add .
+   git commit -m "Initial: S3-triggered Lambda, local sim, SAM template"
+   git remote add origin https://github.com/YOUR_USERNAME/sia-lambda-mvp.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+3. **Share with Alex:** send the repo URL, or add Alex as a collaborator (Settings → Collaborators).
+
+`.gitignore` is already in place so `.venv`, `local_output`, and other junk stay out of the zip and out of git. If you tell me whether you prefer zip or GitHub, I can give you the exact next command to run.
+
+---
+
+_**User**_
+
+let me do github can you run it from here?
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+
+The user wants to use GitHub and is asking me to run the git commands from the project. I'll need to:
+1. git init
+2. git add .
+3. git commit
+4. They'll need to create the repo on GitHub and add the remote - I can't do that for them. I can run init, add, commit. For push they need to add the remote with their actual GitHub URL.
+
+Let me run git init, add, and commit. I'll need git_write permission for that. I cannot create the GitHub repo or push without their credentials - so I'll run what I can and tell them the next step (create repo on GitHub, add remote, push).
+</details></think>
+
+---
+
+
+
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd /Users/markbarlow/sia-lambda-mvp && git init && git add . && git status</summary>
+
+```bash
+cd /Users/markbarlow/sia-lambda-mvp && git init && git add . && git status
+```
+
+```
+/Users/markbarlow/sia-lambda-mvp/.git/hooks/: Operation not permitted
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+
+The git init might have partially worked but failed on hooks. Let me try with "all" permissions so git can write to .git fully.
+</details></think>
+
+---
+
+
+
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd /Users/markbarlow/sia-lambda-mvp && git init && git add . && git status</summary>
+
+```bash
+cd /Users/markbarlow/sia-lambda-mvp && git init && git add . && git status
+```
+
+```
+Initialized empty Git repository in /Users/markbarlow/sia-lambda-mvp/.git/
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached &lt;file&gt;..." to unstage)
+	new file:   .cursorindexingignore
+	new file:   .gitignore
+	new file:   .specstory/.gitignore
+	new file:   .specstory/history/2026-03-14_00-42Z-lambda-function-file-creation.md
+	new file:   DEPLOY.md
+	new file:   lambda_function.py
+	new file:   requirements.txt
+	new file:   sample_resume.txt
+	new file:   template.yaml
+	new file:   test_event.json
+
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+
+Good - git init and add worked. Now commit. I'll skip adding .vscode and .specstory if they're not in .gitignore - actually .gitignore doesn't ignore those. Let me check - we have .vscode in .gitignore. So .vscode shouldn't be staged. The status shows what's staged - no .vscode, good. Let me commit.
+</details></think>
+
+---
+
+
+
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd /Users/markbarlow/sia-lambda-mvp && git commit --trailer "Made-with: Cursor" -m "Initial: S3-triggered Lambda, local sim, SAM template"</summary>
+
+```bash
+cd /Users/markbarlow/sia-lambda-mvp && git commit --trailer "Made-with: Cursor" -m "Initial: S3-triggered Lambda, local sim, SAM template"
+```
+
+```
+[main (root-commit) 4acb6b7] Initial: S3-triggered Lambda, local sim, SAM template
+ 10 files changed, 1619 insertions(+)
+ create mode 100644 .cursorindexingignore
+ create mode 100644 .gitignore
+ create mode 100644 .specstory/.gitignore
+ create mode 100644 .specstory/history/2026-03-14_00-42Z-lambda-function-file-creation.md
+ create mode 100644 DEPLOY.md
+ create mode 100644 lambda_function.py
+ create mode 100644 requirements.txt
+ create mode 100644 sample_resume.txt
+ create mode 100644 template.yaml
+ create mode 100644 test_event.json
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+
+Commit done. I can't push without their GitHub repo URL and credentials. I'll give them the exact commands to run to add the remote and push.
+</details></think>
+
+---
+
+
+Here’s what’s done and what’s left for you:
+
+**Done from here**
+- `git init`
+- `git add .` (respecting `.gitignore`)
+- `git commit -m "Initial: S3-triggered Lambda, local sim, SAM template"`
+
+**You do this next**
+
+1. **Create the repo on GitHub**  
+   github.com → New repository → name it `sia-lambda-mvp` (or whatever you like). Don’t add a README or .gitignore.
+
+2. **Add the remote and push** (use your GitHub username and repo name):
+
+   ```bash
+   cd /Users/markbarlow/sia-lambda-mvp
+   git remote add origin https://github.com/YOUR_USERNAME/sia-lambda-mvp.git
+   git push -u origin main
+   ```
+
+   If you use SSH:
+
+   ```bash
+   git remote add origin git@github.com:YOUR_USERNAME/sia-lambda-mvp.git
+   git push -u origin main
+   ```
+
+3. **Share with Alex**  
+   Send the repo URL, or add Alex as a collaborator under **Settings → Collaborators**.
+
+I can’t run `git push` from here because it needs your GitHub auth. After you run the commands above, the code will be on GitHub and you can share it with Alex.
+
+---
+
+_**User**_
+
+https://github.com/mbarlo10-web/sia-lambda-mvp 
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+
+The user is sharing the GitHub repo URL they created: https://github.com/mbarlo10-web/sia-lambda-mvp. They likely want me to add the remote and push to it. I'll need to run git remote add and git push. Push will require network and possibly git_write.
+</details></think>
+
+---
+
+
+
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd /Users/markbarlow/sia-lambda-mvp && git remote add origin https://github.com/mbarlo10-web/sia-lambda-mvp.git 2>/dev/null || git remote set-url origin https://github.com/mbarlo10-web/sia-lambda-mvp.git && git push -u origin main</summary>
+
+```bash
+cd /Users/markbarlow/sia-lambda-mvp && git remote add origin https://github.com/mbarlo10-web/sia-lambda-mvp.git 2>/dev/null || git remote set-url origin https://github.com/mbarlo10-web/sia-lambda-mvp.git && git push -u origin main
+```
+
+```
+error: No such remote 'origin'
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+
+The "or" part ran because add failed (maybe origin already existed with a different URL). So it ran set-url but the error says "No such remote 'origin'" - so add failed and set-url failed because origin didn't exist. Let me just run git remote add origin ...
+</details></think>
+
+---
+
+
+
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd /Users/markbarlow/sia-lambda-mvp && git remote add origin https://github.com/mbarlo10-web/sia-lambda-mvp.git && git push -u origin main</summary>
+
+```bash
+cd /Users/markbarlow/sia-lambda-mvp && git remote add origin https://github.com/mbarlo10-web/sia-lambda-mvp.git && git push -u origin main
+```
+
+```
+error: could not write config file .git/config: Operation not permitted
+fatal: could not set 'remote.origin.url' to 'https://github.com/mbarlo10-web/sia-lambda-mvp.git'
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+
+Sandbox is blocking writes to .git/config. I need to run with "all" permissions.
+</details></think>
+
+---
+
+
+
+
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: cd /Users/markbarlow/sia-lambda-mvp && git remote add origin https://github.com/mbarlo10-web/sia-lambda-mvp.git && git push -u origin main</summary>
+
+```bash
+cd /Users/markbarlow/sia-lambda-mvp && git remote add origin https://github.com/mbarlo10-web/sia-lambda-mvp.git && git push -u origin main
+```
+
+```
+branch 'main' set up to track 'origin/main'.
+To https://github.com/mbarlo10-web/sia-lambda-mvp.git
+ * [new branch]      main -&gt; main
+
+```
+</details>
+</tool-use>
+
+---
+
+<think><details><summary>Thought Process</summary>
+
+Push succeeded. The code is now on GitHub.
+</details></think>
+
+---
+
+
+Push completed. Your code is on GitHub:
+
+**https://github.com/mbarlo10-web/sia-lambda-mvp**
+
+`origin` is set and `main` is tracking `origin/main`. You can share that link with Alex; they can clone with:
+
+```bash
+git clone https://github.com/mbarlo10-web/sia-lambda-mvp.git
+```
+
+---
+
+_**User**_
+
+can i add him as a collaborator
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+
+The user is asking if they can add Alex as a collaborator on their GitHub repo. This is a general "how do I do this" question - they're not asking me to write code or run commands that would add a collaborator (that has to be done through the GitHub UI or API with their credentials). I should give them clear steps to add a collaborator on GitHub.
+</details></think>
+
+---
+
+Yes. You add collaborators in the repo settings:
+
+1. Open **https://github.com/mbarlo10-web/sia-lambda-mvp**
+2. Click **Settings** (repo tab bar).
+3. In the left sidebar, click **Collaborators** (under “Access”).
+4. Click **Add people**.
+5. Enter **Alex’s GitHub username or email**, choose him from the list, then **Add** (and pick a role if asked).
+
+**Roles:**
+
+- **Read**: can clone and view.
+- **Write**: can push, open PRs, manage issues.
+- **Admin**: can change settings and add/remove people.
+
+For sharing code and working together, **Write** is usually enough. After you add him, GitHub will send him an invite; once he accepts, he’ll have access.
+
+---
+
+_**User**_
+
+im done for tonight
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+
+The user is just wrapping up for the night - a casual sign-off. I should respond briefly and warmly, maybe recap what's in place so they (or Alex) can pick up easily later.
+</details></think>
+
+---
+
+Sounds good. Quick recap for when you’re back:
+
+- **Repo:** https://github.com/mbarlo10-web/sia-lambda-mvp  
+- **Local test:** `SIMULATE_LOCAL=1 python lambda_function.py` (from project root with venv active)  
+- **Deploy:** `sam build` then `sam deploy --guided` when you’re ready for AWS  
+- **Add Alex:** Repo → Settings → Collaborators → Add people  
+
+Have a good night.
+
+---
+
+_**User**_
+
+where are these project folders saved?
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+I’ll check the local workspace path on your machine and list where the repo and the main subfolders live.
+
+---
+
+<tool-use data-tool-type="shell" data-tool-name="run_terminal_command_v2">
+<details><summary>Tool use: **run_terminal_command_v2** • Run command: pwd && ls -la /Users/markbarlow/sia-lambda-mvp && ls -la /Users/markbarlow/sia-lambda-mvp/.venv 2>/dev/null || true</summary>
+
+```bash
+pwd && ls -la /Users/markbarlow/sia-lambda-mvp && ls -la /Users/markbarlow/sia-lambda-mvp/.venv 2>/dev/null || true
+```
+
+```
+/Users/markbarlow/sia-lambda-mvp
+total 72
+drwxr-xr-x  15 markbarlow  staff   480 Mar 13 18:05 .
+drwxr-xr-x+ 79 markbarlow  staff  2528 Mar 16 08:43 ..
+-rw-r--r--@  1 markbarlow  staff   110 Mar 13 17:42 .cursorindexingignore
+drwxr-xr-x@ 13 markbarlow  staff   416 Mar 18 14:25 .git
+-rw-r--r--@  1 markbarlow  staff   298 Mar 13 18:02 .gitignore
+drwxr-xr-x@  6 markbarlow  staff   192 Mar 13 17:42 .specstory
+drwxr-xr-x@  6 markbarlow  staff   192 Mar 13 17:47 .venv
+drwxr-xr-x@  3 markbarlow  staff    96 Mar 13 17:42 .vscode
+-rw-r--r--@  1 markbarlow  staff  3005 Mar 13 17:46 DEPLOY.md
+-rw-r--r--@  1 markbarlow  staff  6652 Mar 13 17:46 lambda_function.py
+drwxr-xr-x@  3 markbarlow  staff    96 Mar 13 17:47 local_output
+-rw-r--r--@  1 markbarlow  staff    14 Mar 13 17:46 requirements.txt
+-rw-r--r--@  1 markbarlow  staff   135 Mar 13 17:46 sample_resume.txt
+-rw-r--r--@  1 markbarlow  staff  2000 Mar 13 17:46 template.yaml
+-rw-r--r--@  1 markbarlow  staff   222 Mar 13 17:44 test_event.json
+total 8
+drwxr-xr-x@  6 markbarlow  staff  192 Mar 13 17:47 .
+drwxr-xr-x  15 markbarlow  staff  480 Mar 13 18:05 ..
+drwxr-xr-x@ 14 markbarlow  staff  448 Mar 13 17:47 bin
+drwxr-xr-x@  3 markbarlow  staff   96 Mar 13 17:47 include
+drwxr-xr-x@  3 markbarlow  staff   96 Mar 13 17:47 lib
+-rw-r--r--@  1 markbarlow  staff  315 Mar 13 17:47 pyvenv.cfg
+
+```
+</details>
+</tool-use>
+
+---
+
+They’re saved locally in your workspace directory:
+
+- Project root: `/Users/markbarlow/sia-lambda-mvp`
+
+Inside that folder, you’ll see the project folders like:
+
+- `.venv/` (Python virtual environment)
+- `local_output/` (local simulation output)
+- `.specstory/`
+- `.vscode/`
+- `template.yaml`, `lambda_function.py`, etc.
+
+So if you need to point Alex to “where it lives” on your machine, it’s that `/Users/markbarlow/sia-lambda-mvp` path.
+
+---
+
+_**User**_
+
+i need to paste some updated code that i did in lambda: SIA_Resume_ProcessLambda_Dev: import io
+import json
+import os
+import logging
+import zipfile
+from urllib.parse import unquote_plus
+from datetime import datetime, timezone
+import xml.etree.ElementTree as ET
+
+import boto3
+
+# Optional PDF support
+try:
+    from pypdf import PdfReader
+    PDF_AVAILABLE = True
+except Exception:
+    PDF_AVAILABLE = False
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+s3 = boto3.client("s3")
+
+PROCESSED_BUCKET = os.environ.get(
+    "PROCESSED_BUCKET",
+    "sciata-sia-resumes-processed-dev-us-east-2"
+)
+OUTPUT_PREFIX = os.environ.get(
+    "OUTPUT_PREFIX",
+    "processed/jobdiva/normalized/"
+)
+KMS_KEY_ARN = os.environ.get("KMS_KEY_ARN", "")
+
+SUPPORTED_EXTENSIONS = [".txt", ".docx", ".pdf", ".json"]
+
+
+def build_output_key(source_key: str) -> str:
+    filename = source_key.split("/")[-1]
+    base_name = filename.rsplit(".", 1)[0] if "." in filename else filename
+    return f"{OUTPUT_PREFIX}{base_name}.json"
+
+
+def get_object_bytes(bucket: str, key: str) -> bytes:
+    response = s3.get_object(Bucket=bucket, Key=key)
+    return response["Body"].read()
+
+
+def extract_text_from_txt(bucket: str, key: str) -> str:
+    raw_bytes = get_object_bytes(bucket, key)
+    return raw_bytes.decode("utf-8", errors="replace")
+
+
+def extract_text_from_docx(bucket: str, key: str) -> str:
+    raw_bytes = get_object_bytes(bucket, key)
+
+    with zipfile.ZipFile(io.BytesIO(raw_bytes)) as z:
+        xml_bytes = z.read("word/document.xml")
+
+    root = ET.fromstring(xml_bytes)
+    ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+
+    paragraphs = []
+    for para in root.findall(".//w:p", ns):
+        texts = [node.text for node in para.findall(".//w:t", ns) if node.text]
+        if texts:
+            paragraphs.append("".join(texts))
+
+    return "\n".join(paragraphs)
+
+
+def extract_text_from_pdf(bucket: str, key: str) -> str:
+    if not PDF_AVAILABLE:
+        raise RuntimeError(
+            "PDF parsing requested but pypdf is not installed in this Lambda runtime."
+        )
+
+    raw_bytes = get_object_bytes(bucket, key)
+    reader = PdfReader(io.BytesIO(raw_bytes))
+
+    pages = []
+    for page in reader.pages:
+        page_text = page.extract_text() or ""
+        pages.append(page_text)
+
+    return "\n".join(pages).strip()
+
+
+def extract_json_payload(bucket: str, key: str) -> dict:
+    raw_bytes = get_object_bytes(bucket, key)
+    return json.loads(raw_bytes.decode("utf-8"))
+
+
+def extract_text_by_extension(bucket: str, key: str, extension: str):
+    if extension == ".txt":
+        return extract_text_from_txt(bucket, key)
+    elif extension == ".docx":
+        return extract_text_from_docx(bucket, key)
+    elif extension == ".pdf":
+        return extract_text_from_pdf(bucket, key)
+    elif extension == ".json":
+        return extract_json_payload(bucket, key)
+    else:
+        raise ValueError(f"Unsupported file type: {extension}")
+
+
+def parse_basic_resume_fields(text: str) -> dict:
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    candidate_name = lines[0] if lines else "Unknown"
+
+    return {
+        "candidate_name": candidate_name,
+        "line_count": len(lines),
+        "char_count": len(text),
+    }
+
+
+def parse_jobdiva_candidate_fields(payload: dict) -> dict:
+    candidate_id = str(
+        payload.get("id")
+        or payload.get("candidateId")
+        or payload.get("candidateID")
+        or ""
+    )
+
+    first_name = (
+        payload.get("first name")
+        or payload.get("firstName")
+        or ""
+    )
+
+    middle_initial = (
+        payload.get("middle initial")
+        or payload.get("middleInitial")
+        or ""
+    )
+
+    last_name = (
+        payload.get("last name")
+        or payload.get("lastName")
+        or ""
+    )
+
+    candidate_name = " ".join(
+        part for part in [first_name, middle_initial, last_name] if part
+    ).strip() or "Unknown"
+
+    email = payload.get("email", "") or ""
+    alternate_email = payload.get("alternate email", "") or payload.get("alternateEmail", "") or ""
+    city = payload.get("city", "") or ""
+    state = payload.get("state", "") or ""
+    country = payload.get("country", "") or ""
+    zip_code = payload.get("zipcode", "") or payload.get("zipCode", "") or ""
+
+    qualifications = payload.get("qualifications", [])
+    qualification_names = []
+    qualification_values = []
+
+    if isinstance(qualifications, list):
+        for q in qualifications:
+            if isinstance(q, dict):
+                q_name = q.get("qualificationName", "") or q.get("name", "")
+                q_value = q.get("qualificationValue", "") or q.get("value", "")
+                if q_name:
+                    qualification_names.append(str(q_name))
+                if q_value:
+                    qualification_values.append(str(q_value))
+
+    candidate_qualifications = " | ".join(
+        [x for x in qualification_names + qualification_values if x]
+    )
+
+    profile_parts = [
+        candidate_name,
+        email,
+        alternate_email,
+        city,
+        state,
+        country,
+        zip_code,
+        candidate_qualifications
+    ]
+    candidate_profile = " ".join([p for p in profile_parts if p]).strip()
+
+    return {
+        "candidate_id": candidate_id,
+        "candidate_name": candidate_name,
+        "candidate_profile": candidate_profile,
+        "candidate_qualifications": candidate_qualifications,
+        "email": email,
+        "alternate_email": alternate_email,
+        "city": city,
+        "state": state,
+        "country": country,
+        "zip_code": zip_code,
+        "qualification_names": qualification_names,
+        "qualification_values": qualification_values,
+        "char_count": len(json.dumps(payload)),
+    }
+
+
+def put_json_to_s3(bucket: str, key: str, payload: dict) -> None:
+    body = json.dumps(payload, indent=2).encode("utf-8")
+
+    put_args = {
+        "Bucket": bucket,
+        "Key": key,
+        "Body": body,
+        "ContentType": "application/json",
+    }
+
+    if KMS_KEY_ARN:
+        put_args["ServerSideEncryption"] = "aws:kms"
+        put_args["SSEKMSKeyId"] = KMS_KEY_ARN
+
+    s3.put_object(**put_args)
+
+
+def process_record(record: dict) -> dict:
+    source_bucket = record["s3"]["bucket"]["name"]
+    source_key = unquote_plus(record["s3"]["object"]["key"])
+
+    logger.info(f"Triggered by bucket={source_bucket}, key={source_key}")
+
+    extension = "." + source_key.rsplit(".", 1)[-1].lower() if "." in source_key else ""
+
+    if extension not in SUPPORTED_EXTENSIONS:
+        message = f"Unsupported file type: {extension}. Supported: {SUPPORTED_EXTENSIONS}"
+        logger.warning(message)
+        return {
+            "source_bucket": source_bucket,
+            "source_key": source_key,
+            "status": "skipped",
+            "reason": message,
+        }
+
+    try:
+        extracted = extract_text_by_extension(source_bucket, source_key, extension)
+    except Exception as e:
+        message = f"Extraction failed for {source_key}: {str(e)}"
+        logger.warning(message)
+        return {
+            "source_bucket": source_bucket,
+            "source_key": source_key,
+            "status": "skipped",
+            "reason": message,
+        }
+
+    logger.info(f"Successfully read file: {source_key}")
+
+    if extension == ".json":
+        source_payload = extracted
+        parsed_fields = parse_jobdiva_candidate_fields(source_payload)
+        raw_text = json.dumps(source_payload, indent=2)
+
+        payload = {
+            "status": "processed",
+            "processed_at_utc": datetime.now(timezone.utc).isoformat(),
+            "source_bucket": source_bucket,
+            "source_key": source_key,
+            "source_file_type": "json",
+            "candidate_id": parsed_fields["candidate_id"],
+            "candidate_name": parsed_fields["candidate_name"],
+            "candidate_profile": parsed_fields["candidate_profile"],
+            "candidate_qualifications": parsed_fields["candidate_qualifications"],
+            "parsed_fields": parsed_fields,
+            "raw_text": raw_text,
+            "source_payload": source_payload,
+        }
+    else:
+        text = extracted
+        parsed_fields = parse_basic_resume_fields(text)
+
+        payload = {
+            "status": "processed",
+            "processed_at_utc": datetime.now(timezone.utc).isoformat(),
+            "source_bucket": source_bucket,
+            "source_key": source_key,
+            "source_file_type": extension.replace(".", ""),
+            "candidate_name": parsed_fields.get("candidate_name", "Unknown"),
+            "parsed_fields": parsed_fields,
+            "raw_text": text,
+        }
+
+    output_key = build_output_key(source_key)
+    put_json_to_s3(PROCESSED_BUCKET, output_key, payload)
+
+    logger.info(f"Successfully wrote output to s3://{PROCESSED_BUCKET}/{output_key}")
+
+    return {
+        "source_bucket": source_bucket,
+        "source_key": source_key,
+        "processed_bucket": PROCESSED_BUCKET,
+        "processed_key": output_key,
+        "status": "success",
+    }
+
+
+def lambda_handler(event, context):
+    logger.info("Lambda invoked")
+    logger.info(json.dumps(event))
+
+    results = []
+    errors = []
+
+    records = event.get("Records", [])
+    if not records:
+        logger.warning("No records found in event")
+        return {
+            "statusCode": 400,
+            "body": json.dumps({"message": "No S3 records found"})
+        }
+
+    for record in records:
+        try:
+            result = process_record(record)
+            results.append(result)
+        except Exception as e:
+            logger.exception("Error processing record")
+            source_bucket = record.get("s3", {}).get("bucket", {}).get("name", "unknown")
+            source_key = record.get("s3", {}).get("object", {}).get("key", "unknown")
+            errors.append({
+                "source_bucket": source_bucket,
+                "source_key": source_key,
+                "error": str(e),
+            })
+
+    if errors:
+        return {
+            "statusCode": 500,
+            "body": json.dumps({
+                "message": "One or more records failed",
+                "results": results,
+                "errors": errors,
+            })
+        }
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({
+            "message": "All records processed successfully",
+            "results": results,
+        })
+    }
+
+---
+
+_**Agent (model default, mode Agent)**_
+
+<think><details><summary>Thought Process</summary>
+**Considering code updates**
+
+I need to respond to the user about pasting their updated code. First, I should ask if they want me to apply it to their local `lambda_function.py`, or perhaps run tests. I need to make sure to use the editing tools properly. Their code might require replacing or merging with existing code, and I'll have to be cautious about its size and accuracy. 
+
+I’ll also want to check for imports and new dependencies like `pypdf`, plus ensure updates to `requirements.txt`. They want to paste new code in lambda, so I'll guide them to update their local file and include the necessary dependencies. I have to compare with the existing file to avoid losing any of their modifications, especially concerning local simulation.
+**Planning AWS Lambda updates**
+
+It seems the user expects updates in the AWS Lambda and might not need the local harness preserved. They want to paste new code into Lambda, so I’ll suggest replacing `lambda_function.py` with their supplied code, while considering a way to keep the local simulation helper by adding back `_run_local`. I should ask if they'd like to keep the local simulation—likely yes.
+
+My plan is: first, insert their code into the local file; next, add `pypdf` to requirements; ensure the AWS role has necessary S3 read/write permissions; and finally, update the SAM template if they’re using SAM. For SAM, it's usually best to incorporate `Metadata: BuildMethod: python3.12` and use `AutoPublishAlias` for efficient packaging.
+**Clarifying SAM setup**
+
+Actually, SAM for Python can install dependencies if a `requirements.txt` is present along with `Metadata: BuildMethod`. I should double-check the `template.yaml` file since it's currently using the default. SAM builds should automatically detect the requirements and install them into `.aws-sam` when the BuildMethod is set to `python3.12`. 
+
+It</details></think>
+
+---
+
